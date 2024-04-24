@@ -11,15 +11,35 @@ pipeline {
                 echo 'Git Checkout Completed'
             }
         }
+        stage(' Maven Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+                echo 'Maven build Completed'
+            }
+        }
+        stage('JUnit Test') {
+            steps {
+                // Run unit tests
+                script {
+                    try {
+                        sh 'mvn clean test surefire-report:report' 
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        echo 'Unit tests failed!'
+                        error 'Unit tests failed!'
+                    }
+                }
+                echo 'JUnit test Completed'
+            }
+        }
 
-     stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''mvn clean verify sonar:sonar -Dsonar.projectKey=Assignment-CICD -Dsonar.projectName='Assignment CICD' -Dsonar.host.url=http://localhost:9000''' //port 9000 is default for sonar
+                    sh '''mvn clean verify sonar:sonar -Dsonar.projectKey=cicd-full -Dsonar.projectName='cicd-full' -Dsonar.host.url=http://localhost:9000''' //port 9000 is default for sonar
                     echo 'SonarQube Analysis Completed'
                 }
             }
-        }   
-
+        }
     }
 }

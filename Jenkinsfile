@@ -13,7 +13,7 @@ pipeline {
         }
         stage(' Maven Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests'
                 echo 'Maven build Completed'
             }
         }
@@ -22,7 +22,7 @@ pipeline {
                 // Run unit tests
                 script {
                     try {
-                        sh 'mvn clean test surefire-report:report' 
+                        bat 'mvn clean test surefire-report:report' 
                     } catch (err) {
                         currentBuild.result = 'FAILURE'
                         echo 'Unit tests failed!'
@@ -36,7 +36,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''mvn clean verify sonar:sonar -Dsonar.projectKey=cicd-full -Dsonar.projectName='cicd-full' -Dsonar.host.url=http://localhost:9000''' //port 9000 is default for sonar
+                    bat '''mvn clean verify sonar:sonar -Dsonar.projectKey=cicd-full -Dsonar.projectName='cicd-full' -Dsonar.host.url=http://localhost:9000''' //port 9000 is default for sonar
                     echo 'SonarQube Analysis Completed'
                 }
             }
